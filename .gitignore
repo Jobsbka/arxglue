@@ -1,0 +1,19 @@
+# Byte-compiled files
+__pycache__/
+*.pyc
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+venv/
+.env/
+
+# Testing
+.coverage
+.pytest_cache/
+
+# Documentation
+docs/_build/
