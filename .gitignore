@@ -9,7 +9,7 @@ dist/
 
 # Virtual environments
 venv/
-.env/
+.tenv/
 test/
 
 # Testing
