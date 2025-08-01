@@ -1,7 +1,7 @@
-## GLUE: Минималистичный интерфейс композиции (v1.0) - Расширенная документация
+## ArxGLUE: Минималистичный интерфейс композиции (v1.0) - Расширенная документация
 
 **Философия библиотеки:**  
-GLUE — это концептуальный *клей* для Python экосистемы. Никаких ограничений, никаких готовых решений — только примитивы для объединения ЛЮБЫХ компонентов в ЕДИНУЮ систему. Ваш код, ваши парадигмы, ваши инфраструктурные решения — мы просто их соединяем.
+ArxGLUE — это концептуальный *клей* для Python экосистемы. Никаких ограничений, никаких готовых решений — только примитивы для объединения ЛЮБЫХ компонентов в ЕДИНУЮ систему. Ваш код, ваши парадигмы, ваши инфраструктурные решения — мы просто их соединяем.
 
 ---
 
@@ -25,7 +25,7 @@ def train_model(data):
     model.fit(data, epochs=10)
     return model
 
-# GLUE композиция
+# ArxGLUE композиция
 pipeline = [
     connect(load_data, scale_data),
     connect(scale_data, train_model)
@@ -61,7 +61,7 @@ async def process_request(request: Request):
     # Тяжелая логика
     return {"result": "data"}
 
-# GLUE роутер
+# ArxGLUE роутер
 @app.get("/data")
 async def endpoint(request: Request):
     pipeline = [
@@ -91,7 +91,7 @@ def detect_anomalies(df: pd.DataFrame):
     df['anomaly'] = df['value'] > df['value'].mean() + 3*df['value'].std()
     return df
 
-# GLUE композиция
+# ArxGLUE композиция
 device_processing = [
     connect(read_mqtt("sensors/temp"), to_dataframe),
     connect(to_dataframe, detect_anomalies)
@@ -116,7 +116,7 @@ def load(df):
     with duckdb.connect("data.duckdb") as con:
         con.execute("CREATE TABLE IF NOT EXISTS data AS SELECT * FROM df")
 
-# GLUE связь
+# ArxGLUE связь
 etl = connect(extract, transform)
 load = connect(transform, load)
 
@@ -222,7 +222,7 @@ def process_data_task(data):
     ]
     return execute_distributed(pipeline, data)
 
-# GLUE CLI trigger
+# ArxGLUE CLI trigger
 connect(
     source=receive_kafka_message, 
     target=process_data_task.delay
@@ -233,7 +233,7 @@ connect(
 ```python
 from prometheus_client import Counter
 
-REQUESTS = Counter('glue_requests', 'Total requests')
+REQUESTS = Counter('ArxGLUE_requests', 'Total requests')
 
 def with_monitoring(component):
     def wrapper(*args):
@@ -331,5 +331,5 @@ connect(kafka_source('events'), process_event)
   * Django / Flask / FastAPI
   * PySpark / Dask / Ray
 
-**GLUE не заменяет ваш стек — он соединяет его компоненты в единый организм.**  
+**ArxGLUE не заменяет ваш стек — он соединяет его компоненты в единый организм.**  
 Ваша сложность + наша простота = промышленные решения.

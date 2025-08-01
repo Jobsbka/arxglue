@@ -1,6 +1,6 @@
 """
-GlueCore - Minimalistic Component Composition Interface
-Version: 3.1
+ArxGLUE - Minimalistic Component Composition Interface
+Version: 1.0
 """
 
 from typing import Any, Callable, Optional, Union

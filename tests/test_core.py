@@ -1,7 +1,7 @@
 import unittest
-from gluecore import connect, execute_linear, ContextProtocol
+from arxglue import connect, execute_linear, ContextProtocol
 
-class TestGlueCore(unittest.TestCase):
+class Testarxglue(unittest.TestCase):
     def test_component_definition(self):
         def sample_component(x): return x * 2
         self.assertEqual(sample_component(3), 6)

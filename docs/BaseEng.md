@@ -1,7 +1,7 @@
-## GLUE: Minimalistic Composition Interface (v1.0)
+## ArxGLUE: Minimalistic Composition Interface (v1.0)
 
 **Library Philosophy:**  
-GLUE is not a framework, but a conceptual *glue* for combining any Python-compatible components. The library doesn't impose solutions—it provides minimalistic primitives for declaratively connecting arbitrary elements of your system. Your logic, your executors, your data—we just give you the tools to "glue" them together.
+ArxGLUE is not a framework, but a conceptual *ArxGLUE* for combining any Python-compatible components. The library doesn't impose solutions—it provides minimalistic primitives for declaratively connecting arbitrary elements of your system. Your logic, your executors, your data—we just give you the tools to "ArxGLUE" them together.
 
 ---
 
@@ -38,7 +38,7 @@ GLUE is not a framework, but a conceptual *glue* for combining any Python-compat
    - Can be extended by users.
 
 4. **Executors (Example: `execute_linear`)**  
-   GLUE **does not include** ready-made executors. It only offers *interfaces* for integration. Minimal executor example:
+   ArxGLUE **does not include** ready-made executors. It only offers *interfaces* for integration. Minimal executor example:
    ```python
    def execute_linear(components: list[Component], input_data: Any) -> Any:
        result = input_data
@@ -139,7 +139,7 @@ result = process_num(data)    # 4200
 ### FAQ
 
 **Q: How to handle complex dependencies?**  
-A: GLUE doesn't manage dependencies. Implement your own executor to interpret connection descriptors per your rules.
+A: ArxGLUE doesn't manage dependencies. Implement your own executor to interpret connection descriptors per your rules.
 
 **Q: Can I integrate with asyncio/threading?**  
 A: Yes! Components can be async functions, generators, or external services. Your executor handles concurrency.
@@ -165,5 +165,5 @@ def endpoint(request):
 
 ---
 
-**GLUE doesn't solve your problems—it gives you the freedom to solve them by combining components in any configuration.**  
-Your logic + our glue = ❤️
+**ArxGLUE doesn't solve your problems—it gives you the freedom to solve them by combining components in any configuration.**  
+Your logic + our ArxGLUE = ❤️

@@ -1,15 +1,15 @@
-# GlueCore
+# arxglue
 
 Minimalistic Component Composition Interface
 
 [![Apache License 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Python Versions](https://img.shields.io/pypi/pyversions/gluecore.svg)](https://pypi.org/project/gluecore/)
-[![GitHub]](https://github.com/Jobsbka/gluecore)
+[![Python Versions](https://img.shields.io/pypi/pyversions/arxglue.svg)](https://pypi.org/project/arxglue/)
+[![GitHub]](https://github.com/Jobsbka/arxglue)
 
 ```bash
-pip install gluecore
+pip install arxglue
 
-Why GlueCore?
+Why arxglue?
 Minimal Core: Only essential primitives (Component, Connection)
 
 Zero Dependencies: Pure Python, no external packages
@@ -22,7 +22,7 @@ Apache 2.0 Licensed: Permissive for commercial use
 
 Core Concepts
 python
-from gluecore import connect, execute_linear
+from arxglue import connect, execute_linear
 
 # Any callable is a component
 def uppercase(text: str) -> str:

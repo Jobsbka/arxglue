@@ -1,0 +1,24 @@
+(test)
+zorge@***** MINGW64 /d/gluecore (master)
+$ python -m unittest tests.test_core
+......
+----------------------------------------------------------------------
+Ran 6 tests in 0.000s
+
+OK
+(test)
+zorge@***** MINGW64 /d/gluecore (master)
+$ python -m unittest tests.test_deep
+.....x............
+----------------------------------------------------------------------
+Ran 18 tests in 0.046s
+
+OK (expected failures=1)
+(test)
+zorge@***** MINGW64 /d/gluecore (master)
+$ python -m unittest tests.test_integrations
+......
+----------------------------------------------------------------------
+Ran 6 tests in 1.005s
+
+OK

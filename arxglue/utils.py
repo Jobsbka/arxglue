@@ -24,5 +24,5 @@ def component(func: Callable) -> Callable:
     :param func: Component function
     :return: Marked component function
     """
-    func._is_gluecore_component = True
+    func._is_arxglue_component = True
     return func
