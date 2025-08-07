@@ -80,7 +80,7 @@ graph TD
     B --> C{Subgraph}  
     C --> D[UserProfile]  
     C --> E[Recommendations]  
-    E --> F[(ML Model)]  # Вложенный макрокомпонент  
+    E --> F[(ML Model)]  
 ```  
 
 #### Паттерн 2: Реактивные графы  
