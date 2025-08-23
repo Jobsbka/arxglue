@@ -1,0 +1,22 @@
+$ python test_recruiter.py
+Testing Recruiter Pipeline...
+D:\arxtools\transglue\gluetorch.py:128: UserWarning: Input port resume_text is required but has type ANY
+  warnings.warn(f"Input port {port_name} is required but has type ANY")
+D:\arxtools\transglue\gluetorch.py:128: UserWarning: Input port jd_text is required but has type ANY
+  warnings.warn(f"Input port {port_name} is required but has type ANY")
+D:\arxtools\transglue\gluetorch.py:128: UserWarning: Input port text1 is required but has type ANY
+  warnings.warn(f"Input port {port_name} is required but has type ANY")
+D:\arxtools\transglue\gluetorch.py:128: UserWarning: Input port text2 is required but has type ANY
+  warnings.warn(f"Input port {port_name} is required but has type ANY")
+
+--- Test Case 1 ---
+Overall Score: 1.000
+Semantic Similarity: 0.866
+Candidate Skills: ['python', 'docker']
+Required Skills: ['python', 'docker']
+
+--- Test Case 2 ---
+Overall Score: 0.300
+Semantic Similarity: 0.518
+Candidate Skills: ['java']
+Required Skills: ['python']
