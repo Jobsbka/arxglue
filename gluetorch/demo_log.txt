@@ -1,4 +1,3 @@
-zorge@DESKTOP-00C3JAN MINGW64 /d/arxtools/transglue (master)
 $ python demo.py --model mnist --mode train --epochs 5 --batch_size 32 --lr 0.001
 Создание простой сети для MNIST...
 Подготовка данных MNIST...
@@ -31,7 +30,7 @@ Epoch 5 завершена | Средний loss: 1.3691
 Обучение завершено!
 Модель сохранена в mnist_model.pth
 (venv)
-zorge@DESKTOP-00C3JAN MINGW64 /d/arxtools/transglue (master)
+zorge@DESKTOP
 $ python demo.py --model transformer --mode train --epochs 3 --batch_size 16 --lr 0.0001
 Создание трансформера...
 Подготовка данных для трансформера...
@@ -51,7 +50,7 @@ Epoch 3 завершена | Средний loss: 2.0393
 Обучение трансформера завершено!
 Модель сохранена в transformer_model.pth
 (venv)
-zorge@DESKTOP-00C3JAN MINGW64 /d/arxtools/transglue (master)
+zorge@DESKTOP
 $ python demo.py --model mnist --mode inference
 Создание простой сети для MNIST...
 Загружены веса из mnist_model.pth
@@ -63,7 +62,7 @@ $ python demo.py --model mnist --mode inference
 Пример 4: предсказанный класс = 0
 Пример 5: предсказанный класс = 8
 (venv)
-zorge@DESKTOP-00C3JAN MINGW64 /d/arxtools/transglue (master)
+zorge@DESKTOP
 $ python demo.py --model transformer --mode inference
 Создание трансформера...
 Загружены веса из transformer_model.pth
