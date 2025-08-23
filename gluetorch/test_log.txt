@@ -1,0 +1,3 @@
+zorge@DESKTOP-00C3JAN MINGW64 /d/arxtools/transglue (master)
+$ python test_gluetorch.py
+All tests passed!

@@ -1,0 +1,74 @@
+zorge@DESKTOP-00C3JAN MINGW64 /d/arxtools/transglue (master)
+$ python demo.py --model mnist --mode train --epochs 5 --batch_size 32 --lr 0.001
+Создание простой сети для MNIST...
+Подготовка данных MNIST...
+Начало обучения...
+Epoch: 1/5 | Batch: 0/32 | Loss: 2.2400
+Epoch: 1/5 | Batch: 10/32 | Loss: 2.3285
+Epoch: 1/5 | Batch: 20/32 | Loss: 2.3076
+Epoch: 1/5 | Batch: 30/32 | Loss: 2.2940
+Epoch 1 завершена | Средний loss: 2.3162
+Epoch: 2/5 | Batch: 0/32 | Loss: 2.1931
+Epoch: 2/5 | Batch: 10/32 | Loss: 2.1662
+Epoch: 2/5 | Batch: 20/32 | Loss: 2.2421
+Epoch: 2/5 | Batch: 30/32 | Loss: 2.2189
+Epoch 2 завершена | Средний loss: 2.1352
+Epoch: 3/5 | Batch: 0/32 | Loss: 1.9233
+Epoch: 3/5 | Batch: 10/32 | Loss: 1.9659
+Epoch: 3/5 | Batch: 20/32 | Loss: 1.9495
+Epoch: 3/5 | Batch: 30/32 | Loss: 1.8946
+Epoch 3 завершена | Средний loss: 1.9104
+Epoch: 4/5 | Batch: 0/32 | Loss: 1.7009
+Epoch: 4/5 | Batch: 10/32 | Loss: 1.7975
+Epoch: 4/5 | Batch: 20/32 | Loss: 1.4449
+Epoch: 4/5 | Batch: 30/32 | Loss: 1.5938
+Epoch 4 завершена | Средний loss: 1.6565
+Epoch: 5/5 | Batch: 0/32 | Loss: 1.3227
+Epoch: 5/5 | Batch: 10/32 | Loss: 1.4072
+Epoch: 5/5 | Batch: 20/32 | Loss: 1.4076
+Epoch: 5/5 | Batch: 30/32 | Loss: 1.3812
+Epoch 5 завершена | Средний loss: 1.3691
+Обучение завершено!
+Модель сохранена в mnist_model.pth
+(venv)
+zorge@DESKTOP-00C3JAN MINGW64 /d/arxtools/transglue (master)
+$ python demo.py --model transformer --mode train --epochs 3 --batch_size 16 --lr 0.0001
+Создание трансформера...
+Подготовка данных для трансформера...
+Начало обучения трансформера...
+Epoch: 1/3 | Batch: 0/13 | Loss: 2.3252
+Epoch: 1/3 | Batch: 5/13 | Loss: 2.3249
+Epoch: 1/3 | Batch: 10/13 | Loss: 2.3234
+Epoch 1 завершена | Средний loss: 2.3415
+Epoch: 2/3 | Batch: 0/13 | Loss: 2.1554
+Epoch: 2/3 | Batch: 5/13 | Loss: 2.2780
+Epoch: 2/3 | Batch: 10/13 | Loss: 2.2275
+Epoch 2 завершена | Средний loss: 2.2075
+Epoch: 3/3 | Batch: 0/13 | Loss: 2.1088
+Epoch: 3/3 | Batch: 5/13 | Loss: 1.9346
+Epoch: 3/3 | Batch: 10/13 | Loss: 1.8422
+Epoch 3 завершена | Средний loss: 2.0393
+Обучение трансформера завершено!
+Модель сохранена в transformer_model.pth
+(venv)
+zorge@DESKTOP-00C3JAN MINGW64 /d/arxtools/transglue (master)
+$ python demo.py --model mnist --mode inference
+Создание простой сети для MNIST...
+Загружены веса из mnist_model.pth
+Запуск инференса на MNIST...
+Результаты инференса:
+Пример 1: предсказанный класс = 6
+Пример 2: предсказанный класс = 7
+Пример 3: предсказанный класс = 7
+Пример 4: предсказанный класс = 0
+Пример 5: предсказанный класс = 8
+(venv)
+zorge@DESKTOP-00C3JAN MINGW64 /d/arxtools/transglue (master)
+$ python demo.py --model transformer --mode inference
+Создание трансформера...
+Загружены веса из transformer_model.pth
+Запуск инференса на трансформере...
+Результаты инференса трансформера:
+Пример 1: предсказанный класс = 8
+Пример 2: предсказанный класс = 8
+Пример 3: предсказанный класс = 8
