@@ -1,0 +1,38 @@
+=== РЕЗУЛЬТАТЫ ЭКСПЕРИМЕНТА ===
+Дата и время: 20250826_003823
+Режим: Соревновательный
+
+=== МОДЕЛИ ===
+Baseline параметров: 56,835,488
+History параметров: 57,099,168
+Разница: 263,680 параметров
+
+=== РЕЗУЛЬТАТЫ ОБУЧЕНИЯ ===
+Baseline - Финальная перплексия: 1.27
+History - Финальная перплексия: 1.27
+Улучшение: -0.00
+
+=== РЕСУРСЫ ===
+Baseline - Среднее использование CPU памяти: 54.03%
+Baseline - Среднее использование GPU памяти: 1.08GB
+Baseline - Максимальное использование GPU памяти: 4.18GB
+Baseline - Время обучения: 339.73 секунд
+History - Среднее использование CPU памяти: 53.76%
+History - Среднее использование GPU памяти: 1.72GB
+History - Максимальное использование GPU памяти: 4.86GB
+History - Время обучения: 353.94 секунд
+
+=== ГЕНЕРАЦИЯ ===
+Baseline Model:
+Prompt: 'How are you today?' -> Generated: 'how are you today? when it was first action, nothing to come to be talking about two people around the next issues. you think. i don't waste your head. it's bad as well as'
+Prompt: 'i really liked' -> Generated: 'i really liked the film. some of the action scenes were very interesting, tense and well done. i especially liked the opening scene which had a semi truck in it. a very tense'
+Prompt: 'the acting was' -> Generated: 'the acting was pleasant and be as a great cast. the show was a great jane austen cycle of great actress and you've never heard it: an interesting story showed recently all of'
+Prompt: 'the story is' -> Generated: 'the story is truly truly truly poignant, unique and uplifting. the world in that fateful morning of the sub b series by tim anything as a lot of the u.s. war england (but'
+Prompt: 'this movie is' -> Generated: 'this movie is great fun to watch if you love films of the organized crime variety. those looking for a crime film starring a charismatic lead with dreams of taking over in a'
+
+History Model:
+Prompt: 'How are you today?' -> Generated: 'how are you today? author this movie when i was quite impressed. still laughed than many years before i had to see this film i am constantly amazed at a fan and this movie'
+Prompt: 'i really liked' -> Generated: 'i really liked the film. some of the action scenes were very interesting, tense and well done. i especially liked the opening scene which had a semi truck in it. a very tense'
+Prompt: 'the acting was' -> Generated: 'the acting was sub-par, but this television pilot delivers a great springboard into what has become a sci-fi fans ideal program. the actors deliver and the special effects (for a television series) are'
+Prompt: 'the story is' -> Generated: 'the story is a complex and wonderful tale of the last harem of the ottoman empire, well told and provoking we see the inner workings of a world now gone, and learn about'
+Prompt: 'this movie is' -> Generated: 'this movie is intelligent. that is, more than most other movies, it transcends the least common denominator - stupid people will probably not appreciate it. the story also relies heavily on dialogue. it'
