@@ -1,0 +1,177 @@
+History modified transformer (decoder omly)
+Dataset size: 12052 sequences
+Vocabulary size: 185 characters
+Total parameters: 3,649,209
+Размер датасета 3+ млн символов
+Особенности датасета: Живой текст состоящий из: чата с нейросетью DeepSeek R1 в режиме reasoner с сохранением ответа и предответа на тему разработки нейросети (этой же) 
+Python и HTML исходный код
+Роман "Трудно Быть Богом" А Б Стругацкие
+Цель проверить обобщающие способности модели на разноформатных данных
+Потребление GPU: 1.8\12GB
+Dataset size: 12052 sequences
+Vocabulary size: 185 characters
+Total parameters: 3,649,209
+Epoch 1: Train Loss = 2.6664, Val Loss = 2.5318
+Epoch 2: Train Loss = 2.4875, Val Loss = 2.3548
+Epoch 3: Train Loss = 2.3174, Val Loss = 2.1457
+Epoch 4: Train Loss = 2.1585, Val Loss = 1.9894
+Epoch 5: Train Loss = 2.0344, Val Loss = 1.8615
+
+Prompt: 'def ' -> Generated: 'def за заглядый рузыв клаки.
+
+Мы мановать по кому объя'
+Prompt: 'class ' -> Generated: 'class = 1.2 1, 98\&quot;
+        '
+Prompt: 'import ' -> Generated: 'import ine im x (x).unpate_(vale)._(self.d_model, codel, '
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата Рэдрик с Рэдрики на как из-то за за мной шей пока'
+
+Epoch 6: Train Loss = 1.9061, Val Loss = 1.5582
+Epoch 7: Train Loss = 1.3949, Val Loss = 1.0109
+Epoch 8: Train Loss = 1.0900, Val Loss = 0.9315
+Epoch 9: Train Loss = 1.0107, Val Loss = 0.8967
+Epoch 10: Train Loss = 0.9697, Val Loss = 0.8688
+
+Prompt: 'def ' -> Generated: 'def def, def decoder, decoder_dim, decoder_output = n.'
+Prompt: 'class ' -> Generated: 'class = 10.0
+        '
+Prompt: 'import ' -> Generated: 'import = self.dropout()
+                   self.config.co'
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата и страник городной как и дели как до только в так'
+
+Epoch 11: Train Loss = 0.9352, Val Loss = 0.8433
+Epoch 12: Train Loss = 0.9116, Val Loss = 0.8224
+Epoch 13: Train Loss = 0.8903, Val Loss = 0.8040
+Epoch 14: Train Loss = 0.8692, Val Loss = 0.7814
+Epoch 15: Train Loss = 0.8476, Val Loss = 0.7604
+
+Prompt: 'def ' -> Generated: 'def nodel.d_model, del)
+              self.decoder_enc'
+Prompt: 'class ' -> Generated: 'class cle.
+
+                                            '
+Prompt: 'import ' -> Generated: 'import if routput norch.ranspers.out(devic, aself, n._wei'
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата, ты не в комнать. Я не достал девять может коровь'
+
+Epoch 16: Train Loss = 0.8214, Val Loss = 0.7290
+Epoch 17: Train Loss = 0.7965, Val Loss = 0.6921
+Epoch 18: Train Loss = 0.7590, Val Loss = 0.6168
+Epoch 19: Train Loss = 0.6707, Val Loss = 0.4148
+Epoch 20: Train Loss = 0.4597, Val Loss = 0.1084
+
+Prompt: 'def ' -> Generated: 'def ширевку. Андрея, возняли Ваксиру, что меня ставеря'
+Prompt: 'class ' -> Generated: 'class черти, возную котна мирачки. Он потудно вастеря ка'
+Prompt: 'import ' -> Generated: 'import идтеным. Сковать имерши комунчир, естько вот криво'
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата сельцо подут извя, что морчет изверья, поднят уве'
+
+
+Epoch 21: Train Loss = 0.2216, Val Loss = 0.0405 <сначала подумал что началось переобучение
+Epoch 22: Train Loss = 0.1404, Val Loss = 0.0212 <но кажется это был какой-то всплеск, мб переосмысление чегото?
+Epoch 23: Train Loss = 0.1019, Val Loss = 0.0132 <тут кривые близко
+Epoch 24: Train Loss = 0.0799, Val Loss = 0.0105 <Опа а это чо?
+Epoch 25: Train Loss = 0.0664, Val Loss = 0.0090
+
+Prompt: 'def ' -> Generated: 'def истай соквают начеми тамен ихнай идтоня тоня, вока'
+Prompt: 'class ' -> Generated: 'class чами? дигерь, годи? Зан. Сталки сковя, ихну ковал:'
+Prompt: 'import ' -> Generated: 'import идял белой скарий. Секайски вотя всекий скави! Изо'
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Руматаню подит элиз, цак, изя, воки воят сойти нех воска'
+
+Epoch 26: Train Loss = 0.0556, Val Loss = 0.0077
+Epoch 27: Train Loss = 0.0496, Val Loss = 0.0073
+Epoch 28: Train Loss = 0.0445, Val Loss = 0.0068
+Epoch 29: Train Loss = 0.0412, Val Loss = 0.0063
+Epoch 30: Train Loss = 0.0379, Val Loss = 0.0062
+
+Prompt: 'def ' -> Generated: 'def скавил этом. Ушефли сойти скавил этом. Укные кира,'
+Prompt: 'class ' -> Generated: 'class Чахну. Мушет). Муска, из, это хнаю видял игда им? '
+Prompt: 'import ' -> Generated: 'import if, xкилась польскай совкаю всей котиме-ломя стояв'
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Руматал эторийсто встоя воть помя сойта свотя воста во-м'
+-----------------------------Конец обучения------------------------------------
+
+Vanilla transformer (decoder only)
+Dataset size: 12052 sequences
+Vocabulary size: 185 characters
+Total parameters: 6,447,865
+Тот же датасет
+GPU Usage: 1.8
+
+Epoch 1: Train Loss = 2.6402, Val Loss = 2.5131
+Epoch 2: Train Loss = 2.3928, Val Loss = 2.1796
+Epoch 3: Train Loss = 2.1434, Val Loss = 1.9500
+Epoch 4: Train Loss = 1.9692, Val Loss = 1.7937
+Epoch 5: Train Loss = 1.8473, Val Loss = 1.6896
+
+Prompt: 'def ' -> Generated: 'def regist(config.decoder_config.tokenistry)
+         '
+Prompt: 'class ' -> Generated: 'class = [0
+                                             '
+Prompt: 'import ' -> Generated: 'import torch.anstory_ttory_lens = self.max_model, dim=con'
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата, может мытрить страшник. Он все-таки и покрошил н'
+Epoch 6: Train Loss = 1.7565, Val Loss = 1.6148
+Epoch 7: Train Loss = 1.6959, Val Loss = 1.5633
+Epoch 8: Train Loss = 1.6475, Val Loss = 1.5217
+Epoch 9: Train Loss = 1.6072, Val Loss = 1.4881
+Epoch 10: Train Loss = 1.5724, Val Loss = 1.4565
+
+Prompt: 'def ' -> Generated: 'def registry.append(output)
+                          '
+Prompt: 'class ' -> Generated: 'class = [] = self.dropout(self.norm_self_attn_output)
+  '
+Prompt: 'import ' -> Generated: 'import in self.dropout(ffn_output)
+                      '
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата, как с какой-то два подпозревал на меня собой так'
+
+Epoch 11: Train Loss = 1.5384, Val Loss = 1.4286
+Epoch 12: Train Loss = 1.5150, Val Loss = 1.4074
+Epoch 13: Train Loss = 1.4939, Val Loss = 1.3895
+Epoch 14: Train Loss = 1.4757, Val Loss = 1.3749
+Epoch 15: Train Loss = 1.4589, Val Loss = 1.3630
+Prompt: 'def ' -> Generated: 'def layers.append(output))
+                           '
+Prompt: 'class ' -> Generated: 'class = torch.clat(val_loss, dataloader, criterion, devi'
+Prompt: 'import ' -> Generated: 'import torch.moval()
+criterion = torch.device)
+          '
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата на старой из модель. Кроме выглянули и прочим, чт'
+Epoch 16: Train Loss = 1.4388, Val Loss = 1.3459
+Epoch 17: Train Loss = 1.4256, Val Loss = 1.3337
+Epoch 18: Train Loss = 1.4134, Val Loss = 1.3236
+Epoch 19: Train Loss = 1.4022, Val Loss = 1.3153
+Epoch 20: Train Loss = 1.3919, Val Loss = 1.3049
+Prompt: 'def ' -> Generated: 'def registry
+        self.encoder_emb = RegistryEmbedd'
+Prompt: 'class ' -> Generated: 'class = criterion(output)
+
+               # Aggg'
+Prompt: 'import ' -> Generated: 'import / memperamutery
+
+               return '
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата?
+
+<UNK> Странный прижал прочь. Не может быть, за прик'
+Epoch 21: Train Loss = 1.3775, Val Loss = 1.2970
+Epoch 22: Train Loss = 1.3688, Val Loss = 1.2896
+Epoch 23: Train Loss = 1.3607, Val Loss = 1.2817
+Epoch 24: Train Loss = 1.3533, Val Loss = 1.2748
+Epoch 25: Train Loss = 1.3462, Val Loss = 1.2702
+Prompt: 'def ' -> Generated: 'def config.d_model, config.n_heads, config.d_ff, regis'
+Prompt: 'class ' -> Generated: 'class = train_loss = val_loss:
+                         '
+Prompt: 'import ' -> Generated: 'import = 'value', 'cuda'] char {'cuda'
+               cha'
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата уже не направился извиняющей своего губа. Потом о'
+
+Epoch 26: Train Loss = 1.3350, Val Loss = 1.2621
+Epoch 27: Train Loss = 1.3287, Val Loss = 1.2579
+Epoch 28: Train Loss = 1.3229, Val Loss = 1.2542
+Epoch 29: Train Loss = 1.3170, Val Loss = 1.2478
+Epoch 30: Train Loss = 1.3115, Val Loss = 1.2450
+Prompt: 'def ' -> Generated: 'def registry
+           elif self.encoder_embeddings +'
+Prompt: 'class ' -> Generated: 'class = torch.matmul()
+
+        # Применяем в рег'
+Prompt: 'import ' -> Generated: 'import = 0.51
+                                           '
+Prompt: 'Кто такой Румата' -> Generated: 'Кто такой Румата и припер в отдел волосы, справа и обошел на кресл'
+
+-----------------------------Продолжение обучения--------------------------------
