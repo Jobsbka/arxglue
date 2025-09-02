@@ -1,0 +1,526 @@
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.nn import MultiheadAttention
+import math
+import numpy as np
+
+class HANConfig:
+    """Конфигурация для History-Anchored Network"""
+    def __init__(self):
+        # Основные параметры
+        self.vocab_size = 50000
+        self.input_dim = 512
+        self.hidden_dim = 2048
+        self.output_dim = 512
+        self.num_encoder_groups = 6
+        self.num_decoder_groups = 6
+        self.group_size = 4  # Количество FFN слоев в группе
+        
+        # Параметры внимания
+        self.num_heads = 8
+        self.attention_dropout = 0.1
+        self.history_heads = 4
+        
+        # Anchor parameters
+        self.use_anchor_provider = True
+        self.anchor_dim = 512
+        
+        # GlobalHTA parameters
+        self.use_global_hta = True
+        self.global_hta_heads = 8
+        
+        # Стратегии
+        self.history_aggregation = "attention"  # "attention", "concat", "sum", "max_pool"
+        self.history_fusion = "gate"  # "residual", "gate", "concat"
+        
+        # Визуализация
+        self.visualize_attention = False
+
+class AnchorProvider(nn.Module):
+    """Глобальный провайдер якорей для всех блоков"""
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        self.anchors = {}
+        
+    def register_anchor(self, name, tensor):
+        """Регистрация якоря в пуле"""
+        self.anchors[name] = tensor
+        
+    def get_anchors(self):
+        """Получение всех якорей в виде списка"""
+        return list(self.anchors.values())
+    
+    def forward(self):
+        """Прямой проход (возвращает объединенные якоря)"""
+        anchors = self.get_anchors()
+        if not anchors:
+            return None
+            
+        # Объединяем якоря по dimension=0
+        return torch.stack(anchors, dim=0)
+
+class PositionalEncoding(nn.Module):
+    """Позиционное кодирование"""
+    def __init__(self, d_model, max_len=5000):
+        super(PositionalEncoding, self).__init__()
+        
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0)
+        
+        self.register_buffer('pe', pe)
+        
+    def forward(self, x):
+        return x + self.pe[:, :x.size(1), :]
+
+class FFN(nn.Module):
+    """Базовый блок Feed-Forward Network"""
+    def __init__(self, input_dim, hidden_dim, output_dim):
+        super().__init__()
+        self.fc1 = nn.Linear(input_dim, hidden_dim)
+        self.activation = nn.GELU()
+        self.fc2 = nn.Linear(hidden_dim, output_dim)
+        self.dropout = nn.Dropout(0.1)
+    
+    def forward(self, x):
+        return self.fc2(self.dropout(self.activation(self.fc1(x))))
+
+class HistoryAnchoredAttention(nn.Module):
+    """Усовершенствованное внимание с доступом к якорям"""
+    def __init__(self, dim, num_heads=8, dropout=0.1):
+        super().__init__()
+        self.dim = dim
+        self.num_heads = num_heads
+        self.head_dim = dim // num_heads
+        
+        # Проекции для запроса, ключа и значения
+        self.query_proj = nn.Linear(dim, dim)
+        self.key_proj = nn.Linear(dim, dim)
+        self.value_proj = nn.Linear(dim, dim)
+        
+        # Проекции для якорей
+        self.anchor_key_proj = nn.Linear(dim, dim)
+        self.anchor_value_proj = nn.Linear(dim, dim)
+        
+        # Output projection
+        self.output_proj = nn.Linear(dim, dim)
+        
+        # Dropout
+        self.dropout = nn.Dropout(dropout)
+        self.softmax = nn.Softmax(dim=-1)
+        
+    def forward(self, x, history, anchor_provider=None):
+        batch_size, seq_len, dim = x.shape
+        
+        # Project query
+        query = self.query_proj(x)
+        
+        # Prepare keys and values from history
+        if history:
+            history_stacked = torch.stack(history, dim=2)  # [batch, seq, history_len, dim]
+            history_len = history_stacked.shape[2]
+            
+            keys = self.key_proj(history_stacked)
+            values = self.value_proj(history_stacked)
+        else:
+            keys = values = torch.empty(batch_size, seq_len, 0, dim, device=x.device)
+            history_len = 0
+        
+        # Add anchors to attention if available
+        if anchor_provider is not None:
+            anchors = anchor_provider.get_anchors()
+            if anchors:
+                # Ensure all anchors have the same shape as x
+                anchors = [anchor.expand(batch_size, seq_len, -1) if anchor.dim() == 2 else 
+                          anchor[:, :seq_len, :] if anchor.shape[1] > seq_len else
+                          F.pad(anchor, (0, 0, 0, seq_len - anchor.shape[1])) 
+                          for anchor in anchors]
+                
+                anchor_stacked = torch.stack(anchors, dim=2)  # [batch, seq, anchor_len, dim]
+                anchor_len = anchor_stacked.shape[2]
+                
+                anchor_keys = self.anchor_key_proj(anchor_stacked)
+                anchor_values = self.anchor_value_proj(anchor_stacked)
+                
+                # Concatenate history and anchors
+                keys = torch.cat([keys, anchor_keys], dim=2) if history_len > 0 else anchor_keys
+                values = torch.cat([values, anchor_values], dim=2) if history_len > 0 else anchor_values
+                total_len = history_len + anchor_len
+            else:
+                total_len = history_len
+        else:
+            total_len = history_len
+        
+        # Reshape for multi-head attention
+        query = query.view(batch_size, seq_len, self.num_heads, self.head_dim).transpose(1, 2)
+        keys = keys.view(batch_size, seq_len, total_len, self.num_heads, self.head_dim).permute(0, 3, 1, 2, 4)
+        values = values.view(batch_size, seq_len, total_len, self.num_heads, self.head_dim).permute(0, 3, 1, 2, 4)
+        
+        # Expand keys and values to match query's head dimension
+        keys = keys.expand(batch_size, self.num_heads, seq_len, total_len, self.head_dim)
+        values = values.expand(batch_size, self.num_heads, seq_len, total_len, self.head_dim)
+        
+        # Compute attention scores
+        attention_scores = torch.matmul(
+            query.unsqueeze(3),  # [batch, heads, seq, 1, head_dim]
+            keys.transpose(-2, -1)  # [batch, heads, seq, head_dim, history_len]
+        ) / math.sqrt(self.head_dim)
+        
+        attention_scores = attention_scores.squeeze(3)  # [batch, heads, seq, history_len]
+        
+        # Apply softmax to get attention weights
+        attention_weights = self.softmax(attention_scores)
+        attention_weights = self.dropout(attention_weights)
+        
+        # Apply attention to values
+        attention_output = torch.matmul(
+            attention_weights.unsqueeze(3),  # [batch, heads, seq, 1, history_len]
+            values  # [batch, heads, seq, history_len, head_dim]
+        ).squeeze(3)  # [batch, heads, seq, head_dim]
+        
+        # Reshape back to original dimensions
+        attention_output = attention_output.transpose(1, 2).contiguous()
+        attention_output = attention_output.view(batch_size, seq_len, dim)
+        
+        # Apply output projection
+        output = self.output_proj(attention_output)
+        
+        return output
+
+class FFNGroup(nn.Module):
+    """Группа FFN слоев с микро-историей и доступом к якорям"""
+    def __init__(self, config, group_index):
+        super().__init__()
+        self.config = config
+        self.group_index = group_index
+        
+        # Создаем FFN слои
+        self.ffn_layers = nn.ModuleList()
+        for i in range(config.group_size):
+            in_dim = config.input_dim if i == 0 else config.output_dim
+            self.ffn_layers.append(FFN(in_dim, config.hidden_dim, config.output_dim))
+        
+        # Создаем механизмы внимания для каждого слоя (кроме первого)
+        self.layer_attentions = nn.ModuleList()
+        for i in range(1, config.group_size):
+            self.layer_attentions.append(
+                HistoryAnchoredAttention(config.output_dim, config.history_heads, config.attention_dropout)
+            )
+        
+        # Нормализация
+        self.layer_norms = nn.ModuleList([nn.LayerNorm(config.output_dim) for _ in range(config.group_size)])
+        
+    def forward(self, x, anchor_provider=None, micro_history=None):
+        current_output = x
+        layer_outputs = []  # Микро-история для этой группы
+        
+        # Проход через все слои группы
+        for layer_idx, ffn_layer in enumerate(self.ffn_layers):
+            # Применяем FFN слой
+            current_output = ffn_layer(current_output)
+            
+            # Сохраняем выход в микро-историю
+            layer_outputs.append(current_output)
+            
+            # Применяем внимание после каждого слоя (кроме первого)
+            if layer_idx > 0:
+                # Подготавливаем историю для этого слоя
+                if micro_history is None:
+                    history_for_layer = layer_outputs[:layer_idx]  # Только предыдущие выходы этой группы
+                else:
+                    # Объединяем микро-историю группы с внешней историей
+                    history_for_layer = micro_history + layer_outputs[:layer_idx]
+                
+                # Применяем внимание с доступом к якорям
+                attention_output = self.layer_attentions[layer_idx-1](
+                    current_output, history_for_layer, anchor_provider
+                )
+                
+                # Residual connection и нормализация
+                current_output = self.layer_norms[layer_idx](current_output + attention_output)
+                layer_outputs[layer_idx] = current_output  # Обновляем микро-историю
+        
+        return current_output, layer_outputs
+
+class GlobalHTA(nn.Module):
+    """Глобальный механизм обмена между Input и Pre-Aggregation Attention"""
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        
+        # Multi-head attention для GlobalHTA
+        self.attention = MultiheadAttention(
+            embed_dim=config.output_dim,
+            num_heads=config.global_hta_heads,
+            dropout=config.attention_dropout,
+            batch_first=True
+        )
+        
+        # Нормализация
+        self.norm = nn.LayerNorm(config.output_dim)
+        self.dropout = nn.Dropout(config.attention_dropout)
+        
+    def forward(self, input_rep, aggregation_rep):
+        # input_rep: представление от Input Attention [batch, seq, dim]
+        # aggregation_rep: представление перед агрегацией [batch, seq, dim]
+        
+        # Используем aggregation_rep как query, input_rep как key/value
+        hta_output, _ = self.attention(
+            query=aggregation_rep,
+            key=input_rep,
+            value=input_rep
+        )
+        
+        # Residual connection и нормализация
+        output = self.norm(aggregation_rep + self.dropout(hta_output))
+        
+        return output
+
+class HANEncoder(nn.Module):
+    """Кодировщик History-Anchored Network"""
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        
+        # Input Attention
+        self.input_attention = MultiheadAttention(
+            embed_dim=config.output_dim,
+            num_heads=config.num_heads,
+            dropout=config.attention_dropout,
+            batch_first=True
+        )
+        self.input_norm = nn.LayerNorm(config.output_dim)
+        
+        # Группы FFN
+        self.groups = nn.ModuleList([
+            FFNGroup(config, i) for i in range(config.num_encoder_groups)
+        ])
+        
+        # Макро-история (внимание между группами)
+        self.group_attentions = nn.ModuleList([
+            HistoryAnchoredAttention(config.output_dim, config.history_heads, config.attention_dropout)
+            for _ in range(config.num_encoder_groups - 1)
+        ])
+        
+        # Нормализация для группового внимания
+        self.group_norms = nn.ModuleList([
+            nn.LayerNorm(config.output_dim) for _ in range(config.num_encoder_groups - 1)
+        ])
+        
+    def forward(self, x, anchor_provider=None):
+        # Применяем Input Attention
+        attn_output, _ = self.input_attention(x, x, x)
+        input_rep = self.input_norm(x + attn_output)
+        
+        # Регистрируем выход Input Attention как якорь
+        if anchor_provider is not None:
+            anchor_provider.register_anchor("input_attention", input_rep)
+        
+        outputs = []  # Макро-история (выходы групп)
+        current_output = input_rep
+        
+        # Проход через все группы
+        for group_idx, group in enumerate(self.groups):
+            # Применяем группу FFN
+            current_output, micro_history = group(current_output, anchor_provider)
+            
+            # Сохраняем выход в макро-историю
+            outputs.append(current_output)
+            
+            # Применяем межгрупповое внимание (кроме последней группы)
+            if group_idx < len(self.groups) - 1:
+                attention_output = self.group_attentions[group_idx](
+                    current_output, outputs, anchor_provider
+                )
+                
+                # Residual connection и нормализация
+                current_output = self.group_norms[group_idx](current_output + attention_output)
+                outputs[group_idx] = current_output  # Обновляем макро-историю
+        
+        return current_output, outputs, input_rep
+
+class HANDecoder(nn.Module):
+    """Декодировщик History-Anchored Network"""
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        
+        # Группы FFN
+        self.groups = nn.ModuleList([
+            FFNGroup(config, i) for i in range(config.num_decoder_groups)
+        ])
+        
+        # Межгрупповое внимание
+        self.group_attentions = nn.ModuleList([
+            HistoryAnchoredAttention(config.output_dim, config.history_heads, config.attention_dropout)
+            for _ in range(config.num_decoder_groups - 1)
+        ])
+        
+        # Нормализация для группового внимания
+        self.group_norms = nn.ModuleList([
+            nn.LayerNorm(config.output_dim) for _ in range(config.num_decoder_groups - 1)
+        ])
+        
+        # Pre-Aggregation Attention
+        self.pre_agg_attention = MultiheadAttention(
+            embed_dim=config.output_dim,
+            num_heads=config.num_heads,
+            dropout=config.attention_dropout,
+            batch_first=True
+        )
+        self.pre_agg_norm = nn.LayerNorm(config.output_dim)
+        
+        # Final Aggregation
+        self.final_aggregation = HistoryAnchoredAttention(
+            config.output_dim, config.history_heads, config.attention_dropout
+        )
+        self.final_norm = nn.LayerNorm(config.output_dim)
+        
+    def forward(self, x, encoder_outputs, anchor_provider=None):
+        outputs = []  # Макро-история декодера
+        current_output = x
+        
+        # Проход через все группы декодера
+        for group_idx, group in enumerate(self.groups):
+            # Объединяем историю энкодера и декодера
+            full_history = encoder_outputs + outputs if encoder_outputs else outputs
+            
+            # Применяем группу FFN
+            current_output, micro_history = group(current_output, anchor_provider, full_history)
+            
+            # Сохраняем выход в макро-историю
+            outputs.append(current_output)
+            
+            # Применяем межгрупповое внимание (кроме последней группы)
+            if group_idx < len(self.groups) - 1:
+                attention_output = self.group_attentions[group_idx](
+                    current_output, outputs, anchor_provider
+                )
+                
+                # Residual connection и нормализация
+                current_output = self.group_norms[group_idx](current_output + attention_output)
+                outputs[group_idx] = current_output  # Обновляем макро-историю
+        
+        # Pre-Aggregation Attention
+        agg_attn, _ = self.pre_agg_attention(current_output, current_output, current_output)
+        agg_rep = self.pre_agg_norm(current_output + agg_attn)
+        
+        # Регистрируем Pre-Aggregation representation как якорь
+        if anchor_provider is not None:
+            anchor_provider.register_anchor("pre_aggregation", agg_rep)
+        
+        # Final Aggregation с доступом ко всей истории
+        final_history = encoder_outputs + outputs if encoder_outputs else outputs
+        final_output = self.final_aggregation(agg_rep, final_history, anchor_provider)
+        final_output = self.final_norm(agg_rep + final_output)
+        
+        return final_output
+
+class HistoryAnchoredNetwork(nn.Module):
+    """Полная архитектура History-Anchored Network"""
+    def __init__(self, config):
+        super().__init__()
+        self.config = config
+        
+        # Эмбеддинги и позиционное кодирование
+        self.token_embedding = nn.Embedding(config.vocab_size, config.input_dim)
+        self.pos_encoding = PositionalEncoding(config.input_dim)
+        
+        # Провайдер якорей
+        self.anchor_provider = AnchorProvider(config) if config.use_anchor_provider else None
+        
+        # Кодировщик и декодировщик
+        self.encoder = HANEncoder(config)
+        self.decoder = HANDecoder(config)
+        
+        # GlobalHTA
+        self.global_hta = GlobalHTA(config) if config.use_global_hta else None
+        
+        # Выходной слой
+        self.output_layer = nn.Linear(config.output_dim, config.vocab_size)
+        
+        # Инициализация весов
+        self.apply(self._init_weights)
+        
+    def _init_weights(self, module):
+        if isinstance(module, nn.Linear):
+            nn.init.xavier_uniform_(module.weight)
+            if module.bias is not None:
+                nn.init.constant_(module.bias, 0)
+        elif isinstance(module, nn.Embedding):
+            nn.init.xavier_uniform_(module.weight)
+    
+    def forward(self, src, tgt):
+        # Получаем эмбеддинги
+        src_emb = self.pos_encoding(self.token_embedding(src))
+        tgt_emb = self.pos_encoding(self.token_embedding(tgt))
+        
+        # Регистрируем сырые эмбеддинги как якоря
+        if self.anchor_provider is not None:
+            self.anchor_provider.register_anchor("raw_src", src_emb)
+            self.anchor_provider.register_anchor("raw_tgt", tgt_emb)
+        
+        # Кодирование
+        encoded, encoder_outputs, input_rep = self.encoder(src_emb, self.anchor_provider)
+        
+        # Декодирование
+        decoded = self.decoder(tgt_emb, encoder_outputs, self.anchor_provider)
+        
+        # Применяем GlobalHTA если доступно
+        if self.global_hta is not None:
+            decoded = self.global_hta(input_rep, decoded)
+        
+        # Выходной слой
+        logits = self.output_layer(decoded)
+        
+        return logits
+    
+    def generate(self, input_ids, max_length=50, temperature=1.0):
+        self.eval()
+        with torch.no_grad():
+            generated = input_ids.clone()
+            
+            for _ in range(max_length):
+                # Подготавливаем входы
+                src = generated
+                tgt = generated[:, -1:]  # Последний токен как цель
+                
+                # Прямой проход
+                logits = self.forward(src, tgt)
+                next_token_logits = logits[:, -1, :] / temperature
+                
+                # Применяем softmax и выбираем следующий токен
+                next_token_probs = F.softmax(next_token_logits, dim=-1)
+                next_token = torch.multinomial(next_token_probs, num_samples=1)
+                
+                # Добавляем новый токен к последовательности
+                generated = torch.cat([generated, next_token], dim=1)
+                
+                # Останавливаемся если достигли конца последовательности
+                if next_token.item() == self.config.eos_token_id:
+                    break
+            
+            return generated
+
+# Пример использования
+if __name__ == "__main__":
+    config = HANConfig()
+    model = HistoryAnchoredNetwork(config)
+    
+    # Пример входных данных
+    src = torch.randint(0, config.vocab_size, (1, 10))
+    tgt = torch.randint(0, config.vocab_size, (1, 12))
+    
+    # Прямой проход
+    logits = model(src, tgt)
+    print(f"Output logits shape: {logits.shape}")
+    
+    # Генерация
+    generated = model.generate(src, max_length=15)
+    print(f"Generated sequence: {generated}")
